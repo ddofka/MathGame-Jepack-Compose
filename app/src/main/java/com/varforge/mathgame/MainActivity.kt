@@ -1,5 +1,6 @@
 package com.varforge.mathgame
 
+import SecondPage
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,6 +12,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.varforge.mathgame.ui.theme.MathGameTheme
 
 class MainActivity : ComponentActivity() {
@@ -20,10 +27,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MathGameTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    MyNavigation()
                 }
             }
         }
@@ -31,17 +35,31 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun MyNavigation(){
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MathGameTheme {
-        Greeting("Android")
+    val navController = rememberNavController()
+
+    NavHost(navController = navController, startDestination = "FirstPage"){
+
+        composable(
+            route = "FirstPage"
+        ){
+            FirstPage(navController = navController)
+        }
+
+        composable(route = "SecondPage/{category}",
+            arguments = listOf(
+                navArgument("category"){type = NavType.StringType}
+            )
+        ){
+            val selectedCategory = it.arguments?.getString("category")
+
+            selectedCategory?.let {category ->
+                SecondPage(navController = navController, category = category)
+            }
+
+        }
+
     }
+
 }

@@ -1,3 +1,4 @@
+import android.os.CountDownTimer
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -38,6 +39,7 @@ import com.varforge.mathgame.R
 import com.varforge.mathgame.TextFieldForAnswer
 import com.varforge.mathgame.TextForQuestion
 import com.varforge.mathgame.generateQuestion
+import java.util.Locale
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,6 +55,31 @@ fun SecondPage(navController : NavController, category : String){
     val myAnswer = remember {mutableStateOf("")}
     val isEnabled = remember {mutableStateOf(true)}
     val correctAnswer = remember {mutableStateOf(0)}
+    val totalTimeInMillis = remember {mutableStateOf(30000L)}
+    val timer = remember {
+        mutableStateOf(
+            object : CountDownTimer(totalTimeInMillis.value,1000){
+                override fun onFinish() {
+
+                    cancel()
+                    myQuestion.value = "Sorry, Time is up!"
+                    life.value -= 1
+                    isEnabled.value = false
+                }
+
+                override fun onTick(millisUntilFinished: Long) {
+
+                    remainingTimeText.value = String.format(
+                        Locale.getDefault(),
+                        "%02d",
+                        millisUntilFinished/1000)
+
+                }
+
+            }.start()
+        )
+    }
+
 
     //LaunchedEffect -> enter the composition
     //SideEffect -> each re-composition
@@ -148,6 +175,8 @@ fun SecondPage(navController : NavController, category : String){
                                     .show()
                             }else{
 
+                                timer.value.cancel()
+
                                 isEnabled.value = false
                                 if (myAnswer.value.toInt() == correctAnswer.value){
                                     score.value += 10
@@ -166,6 +195,9 @@ fun SecondPage(navController : NavController, category : String){
                     ButtonOkNext(
                         buttonText = "Next",
                         myOnClick = {
+
+                            timer.value.cancel()
+                            timer.value.start()
 
                             if (life.value == 0){
                                 Toast.makeText(myContext,

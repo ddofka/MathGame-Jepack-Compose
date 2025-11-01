@@ -11,7 +11,8 @@ to go to the next problem. Games end when all life == 0. After that there will b
 screen with score and two button for try again and exit.
 
 As before I will do all of GIT commands via terminal icluding init and GitHub for
-PR as safe worklfow. Also this README file will be created and edited via terminal.
+PR as safe workflow. Also this README file will be created and edited via terminal.
 
 **Created Using Kotlin/Java & Android Studio Jetpack Compose**
+
 **Hardware used - Mac Mini M4**

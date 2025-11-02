@@ -44,21 +44,21 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SecondPage(navController : NavController, category : String){
+fun SecondPage(navController: NavController, category: String) {
 
     val myContext = LocalContext.current
 
-    val life = remember {mutableStateOf(3)}
-    val score = remember {mutableStateOf(0)}
-    val remainingTimeText = remember {mutableStateOf("30")}
-    val myQuestion = remember {mutableStateOf("")}
-    val myAnswer = remember {mutableStateOf("")}
-    val isEnabled = remember {mutableStateOf(true)}
-    val correctAnswer = remember {mutableStateOf(0)}
-    val totalTimeInMillis = remember {mutableStateOf(30000L)}
+    val life = remember { mutableStateOf(3) }
+    val score = remember { mutableStateOf(0) }
+    val remainingTimeText = remember { mutableStateOf("30") }
+    val myQuestion = remember { mutableStateOf("") }
+    val myAnswer = remember { mutableStateOf("") }
+    val isEnabled = remember { mutableStateOf(true) }
+    val correctAnswer = remember { mutableStateOf(0) }
+    val totalTimeInMillis = remember { mutableStateOf(30000L) }
     val timer = remember {
         mutableStateOf(
-            object : CountDownTimer(totalTimeInMillis.value,1000){
+            object : CountDownTimer(totalTimeInMillis.value, 1000) {
                 override fun onFinish() {
 
                     cancel()
@@ -72,7 +72,8 @@ fun SecondPage(navController : NavController, category : String){
                     remainingTimeText.value = String.format(
                         Locale.getDefault(),
                         "%02d",
-                        millisUntilFinished/1000)
+                        millisUntilFinished / 1000
+                    )
 
                 }
 
@@ -99,18 +100,19 @@ fun SecondPage(navController : NavController, category : String){
         topBar = {
             TopAppBar(
                 navigationIcon = {
-                    IconButton(onClick = {navController.popBackStack()}) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "back")
                     }
                 },
                 title = {
-                    Text(text =
-                        when(category){
-                            "add" -> "Addition"
-                            "sub" -> "Subtraction"
-                            "multi" -> "Multiplication"
-                            else -> "Division"
-                        },
+                    Text(
+                        text =
+                            when (category) {
+                                "add" -> "Addition"
+                                "sub" -> "Subtraction"
+                                "multi" -> "Multiplication"
+                                else -> "Division"
+                            },
                         fontSize = 20.sp
                     )
                 },
@@ -127,7 +129,10 @@ fun SecondPage(navController : NavController, category : String){
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(it)
-                    .paint(painter = painterResource(R.drawable.second), contentScale = ContentScale.Crop),
+                    .paint(
+                        painter = painterResource(R.drawable.second),
+                        contentScale = ContentScale.Crop
+                    ),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
@@ -137,7 +142,7 @@ fun SecondPage(navController : NavController, category : String){
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceEvenly
-                ){
+                ) {
 
                     Text(text = "Life:", fontSize = 16.sp, color = Color.White)
                     Text(text = life.value.toString(), fontSize = 16.sp, color = Color.White)
@@ -168,23 +173,37 @@ fun SecondPage(navController : NavController, category : String){
                         buttonText = "OK",
                         myOnClick = {
 
-                            if (myAnswer.value.isEmpty()){
-                                Toast.makeText(myContext,
+                            if (myAnswer.value.isEmpty()) {
+                                Toast.makeText(
+                                    myContext,
                                     "Write an answer or click the Next button",
-                                    Toast.LENGTH_SHORT)
+                                    Toast.LENGTH_SHORT
+                                )
                                     .show()
-                            }else{
+                            } else {
 
                                 timer.value.cancel()
 
                                 isEnabled.value = false
-                                if (myAnswer.value.toInt() == correctAnswer.value){
+                                if (myAnswer.value.toInt() == correctAnswer.value) {
                                     score.value += 10
                                     myQuestion.value = "Congratulations..."
                                     myAnswer.value = ""
-                                }else{
-                                    life.value -= 1
+                                } else {
                                     myQuestion.value = "Sorry, your answer is wrong."
+                                    life.value -= 1
+                                    if (life.value == 0) {
+                                        Toast.makeText(
+                                            myContext,
+                                            "GAME OVER",
+                                            Toast.LENGTH_SHORT
+                                        )
+                                            .show()
+                                        //open the result page
+                                        navController.navigate("ResultPage/${score.value}") {
+                                            popUpTo("FirstPage") { inclusive = false }
+                                        }
+                                    }
                                 }
 
                             }
@@ -199,20 +218,11 @@ fun SecondPage(navController : NavController, category : String){
                             timer.value.cancel()
                             timer.value.start()
 
-                            if (life.value == 0){
-                                Toast.makeText(myContext,
-                                    "GAME OVER",
-                                    Toast.LENGTH_SHORT)
-                                    .show()
-                                //open the result page
-                            }else{
-
-                                val newResultList = generateQuestion(category)
-                                myQuestion.value = newResultList[0].toString()
-                                correctAnswer.value = newResultList[1].toString().toInt()
-                                myAnswer.value = ""
-                                isEnabled.value = true
-                            }
+                            val newResultList = generateQuestion(category)
+                            myQuestion.value = newResultList[0].toString()
+                            correctAnswer.value = newResultList[1].toString().toInt()
+                            myAnswer.value = ""
+                            isEnabled.value = true
 
                         },
                         isEnabled = true
